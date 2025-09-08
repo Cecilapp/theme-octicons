@@ -1,0 +1,14 @@
+{#-
+{% import 'macros/octicons.twig' as octicons %}
+{{ octicons.svg('<icon>', <16|24>, '<class>') }}
+-#}
+{%- macro svg(name, size = 24, class = '') -%}
+  {%- if size in site.data.octicons[name].heights|keys -%}
+    {%- set path = site.data.octicons[name].heights[size].path -%}
+  {%- else -%}
+    {#- not found: "?" -#}
+    {%- set size = 16 -%}
+    {%- set path = site.data.octicons['question'].heights[size].path -%}
+  {%- endif -%}
+  <svg {% if class %} class="{{ class }}" {% endif %}xmlns="http://www.w3.org/2000/svg" viewbox="0 0 {{ size }} {{ size }}" fill="currentColor" aria-hidden="true">{{ path }}</svg>
+{%- endmacro -%}
