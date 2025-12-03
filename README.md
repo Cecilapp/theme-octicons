@@ -21,3 +21,13 @@ composer require cecil/theme-octicons
 
 {{ octicons.svg('<icon>', <16|24>, '<class>') }}
 ```
+
+## Development
+
+This will build the Octicons data file and copy it to the `data` folder.
+
+```bash
+npm install
+npm run build
+npm run copy
+```
