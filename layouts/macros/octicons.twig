@@ -9,5 +9,5 @@
     {%- set size = 16 -%}
     {%- set icon = site.data.octicons['question'].heights[size] -%}
   {%- endif -%}
-  <svg{% if class %} class="{{ class }}"{% endif %} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {{ icon.width }} {{ size }}" fill="currentColor" aria-hidden="true">{{ icon.path }}</svg>
+  <svg{% if class %} class="{{ class }}"{% endif %} xmlns="http://www.w3.org/2000/svg" width="{{ icon.width }}" height="{{ size }}" viewBox="0 0 {{ icon.width }} {{ size }}" fill="currentColor" aria-hidden="true">{{ icon.path }}</svg>
 {%- endmacro -%}

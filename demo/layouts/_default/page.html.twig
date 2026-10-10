@@ -117,7 +117,7 @@
       <nav>
         <ul>
         {%- for entry in site.menus.main|default([])|sort_by_weight %}
-          <li><a href="{{ url(entry.url) }}">{{ octicons.svg('mark-github', 16, 'octicon') }} {{ entry.name }}</a></li>
+          <li><a href="{{ url(entry.url) }}">{{ entry.name }}</a></li>
         {%- endfor %}
         </ul>
       </nav>
