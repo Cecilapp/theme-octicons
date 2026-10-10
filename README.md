@@ -33,5 +33,13 @@ Install dependencies, then copy the Octicons data file (from `@primer/octicons`)
 ```bash
 npm install
 npm run build
-npm run copy
+```
+
+### Demo
+
+The `demo/` folder contains a website listing all the icons, using the theme under development:
+
+```bash
+php demo/link.php
+cecil serve demo
 ```

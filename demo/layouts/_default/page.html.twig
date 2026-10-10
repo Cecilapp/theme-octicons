@@ -1,0 +1,202 @@
+{#- Base layout of the demo: Pico CSS (bundled with Cecil), with an Octicons gallery -#}
+{%- import 'macros/octicons.twig' as octicons -%}
+<!DOCTYPE html>
+<html lang="{{ site.language }}">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    {{- include('partials/metatags.html.twig', {page: page, site: site}, with_context=false) ~}}
+    <style>{% apply minify_css ~%}
+      {{- include('partials/pico.css.twig') ~}}
+      body > header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: var(--pico-spacing);
+      }
+      body > header hgroup {
+        margin: 0;
+      }
+      body > header nav a {
+        display: inline-flex;
+        align-items: center;
+        gap: .5rem;
+      }
+      .site-title {
+        display: inline-flex;
+        align-items: center;
+        gap: .5rem;
+        font-size: 1.75rem;
+        font-weight: 700;
+        color: var(--pico-h1-color);
+        text-decoration: none;
+      }
+      .octicon {
+        display: inline-block;
+        vertical-align: text-bottom;
+      }
+      .gallery-tools {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: var(--pico-spacing);
+      }
+      .gallery-tools input[type="search"] {
+        flex: 1 1 16rem;
+        margin: 0;
+      }
+      .gallery-tools [role="group"] {
+        width: auto;
+        margin: 0;
+      }
+      .gallery-tools output {
+        color: var(--pico-muted-color);
+      }
+      .gallery {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(8rem, 1fr));
+        gap: .5rem;
+        margin: var(--pico-spacing) 0 0;
+        padding: 0;
+        list-style: none;
+      }
+      .gallery li {
+        margin: 0;
+        list-style: none;
+      }
+      .gallery button {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: .75rem;
+        width: 100%;
+        height: 100%;
+        padding: 1.25rem .5rem .75rem;
+        border-color: var(--pico-muted-border-color);
+        background: transparent;
+        color: var(--pico-color);
+        font-size: .75rem;
+        word-break: break-word;
+      }
+      .gallery button:hover,
+      .gallery button:focus-visible {
+        border-color: var(--pico-primary-border);
+        color: var(--pico-primary);
+      }
+      .gallery button.copied {
+        border-color: var(--pico-ins-color);
+        color: var(--pico-ins-color);
+      }
+      .gallery button > span[class^="s"] {
+        display: none;
+      }
+      .gallery svg {
+        width: auto;
+        max-width: 100%;
+      }
+    {% endapply %}</style>
+    {#- available sizes, to show only the icons of the selected size ~#}
+    {%- set icons = site.data.octicons|default([]) %}
+    {%- set sizes = [] %}
+    {%- for icon in icons %}{% set sizes = sizes|merge(icon.heights|keys) %}{% endfor %}
+    {%- set sizes = sizes|map(s => s * 1)|unique|sort %}
+    <style>{% apply minify_css %}
+      {%- for size in sizes %}
+      .gallery[data-size="{{ size }}"] .s{{ size }} { display: block; }
+      .gallery[data-size="{{ size }}"] li:not([data-sizes~="{{ size }}"]) { display: none; }
+      .gallery[data-size="{{ size }}"] svg { height: {{ size }}px; }
+      {%- endfor %}
+    {% endapply %}</style>
+  </head>
+  <body>
+    <header class="container">
+      <hgroup>
+        <a class="site-title" href="{{ url(site.home) }}">{{ octicons.svg('heart-fill', 24, 'octicon') }} {{ site.title }}</a>
+        <p>{{ site.baseline }}</p>
+      </hgroup>
+      <nav>
+        <ul>
+        {%- for entry in site.menus.main|default([])|sort_by_weight %}
+          <li><a href="{{ url(entry.url) }}">{{ octicons.svg('mark-github', 16, 'octicon') }} {{ entry.name }}</a></li>
+        {%- endfor %}
+        </ul>
+      </nav>
+    </header>
+    <main class="container">
+      {%- block content ~%}
+      {{- page.content ~}}
+      {%- endblock content ~%}
+      {%- if page.gallery|default(false) %}
+      <section>
+        <h2>{{ 'Icons'|trans }}</h2>
+        <div class="gallery-tools">
+          <input type="search" id="filter" placeholder="{{ 'Search an icon…'|trans }}" aria-label="{{ 'Search an icon'|trans }}">
+          <div role="group" aria-label="{{ 'Size'|trans }}">
+            {%- for size in sizes %}
+            <button type="button" data-size="{{ size }}"{% if size != 24 %} class="outline"{% endif %}>{{ size }}px</button>
+            {%- endfor %}
+          </div>
+          <output id="count">{{ icons|length }}</output>
+        </div>
+        <ul class="gallery" id="gallery" data-size="24">
+        {%- for name, icon in icons %}
+          <li data-name="{{ name }}" data-keywords="{{ icon.keywords|default([])|join(' ') }}" data-sizes="{{ icon.heights|keys|join(' ') }}">
+            <button type="button" title="{{ name }}">
+              {%- for size in icon.heights|keys %}
+              <span class="s{{ size }}">{{ octicons.svg(name, size) }}</span>
+              {%- endfor %}
+              <span>{{ name }}</span>
+            </button>
+          </li>
+        {%- endfor %}
+        </ul>
+      </section>
+      <script>{% apply minify_js ~%}
+        (function () {
+          var gallery = document.getElementById('gallery');
+          var filter = document.getElementById('filter');
+          var count = document.getElementById('count');
+          var items = Array.prototype.slice.call(gallery.children);
+          var buttons = document.querySelectorAll('.gallery-tools [data-size]');
+          function update() {
+            var query = filter.value.trim().toLowerCase();
+            var size = gallery.dataset.size;
+            var visible = 0;
+            items.forEach(function (item) {
+              var match = !query || (item.dataset.name + ' ' + item.dataset.keywords).toLowerCase().indexOf(query) !== -1;
+              item.hidden = !match;
+              if (match && item.dataset.sizes.split(' ').indexOf(size) !== -1) visible++;
+            });
+            count.value = visible;
+          }
+          filter.addEventListener('input', update);
+          buttons.forEach(function (button) {
+            button.addEventListener('click', function () {
+              gallery.dataset.size = button.dataset.size;
+              buttons.forEach(function (b) { b.classList.toggle('outline', b !== button); });
+              update();
+            });
+          });
+          gallery.addEventListener('click', function (event) {
+            var button = event.target.closest('button');
+            if (!button || !navigator.clipboard) return;
+            var code = "{{ '{{' }} octicons.svg('" + button.title + "', " + gallery.dataset.size + ") {{ '}}' }}";
+            navigator.clipboard.writeText(code).then(function () {
+              button.classList.add('copied');
+              setTimeout(function () { button.classList.remove('copied'); }, 1000);
+            });
+          });
+        })();
+      {% endapply %}</script>
+      {%- endif %}
+    </main>
+    <footer class="container">
+      <small>
+        {%- set powered_by -%}
+        <a href="{{ cecil.url }}">Cecil</a>, <a href="https://primer.style/octicons/">Primer Octicons</a> &amp; <a href="https://picocss.com">Pico CSS</a>
+        {%- endset %}
+        {% trans %}Powered by %powered_by%{% endtrans %}
+      </small>
+    </footer>
+  </body>
+</html>
