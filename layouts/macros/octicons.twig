@@ -3,12 +3,11 @@
 {{ octicons.svg('<icon>', <16|24>, '<class>') }}
 -#}
 {%- macro svg(name, size = 24, class = '') -%}
-  {%- if size in site.data.octicons[name].heights|keys -%}
-    {%- set path = site.data.octicons[name].heights[size].path -%}
-  {%- else -%}
+  {%- set icon = site.data.octicons[name].heights[size] ?? null -%}
+  {%- if icon is null -%}
     {#- not found: "?" -#}
     {%- set size = 16 -%}
-    {%- set path = site.data.octicons['question'].heights[size].path -%}
+    {%- set icon = site.data.octicons['question'].heights[size] -%}
   {%- endif -%}
-  <svg{% if class %} class="{{ class }}"{% endif %} xmlns="http://www.w3.org/2000/svg" viewbox="0 0 {{ size }} {{ size }}" fill="currentColor" aria-hidden="true">{{ path }}</svg>
+  <svg{% if class %} class="{{ class }}"{% endif %} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {{ icon.width }} {{ size }}" fill="currentColor" aria-hidden="true">{{ icon.path }}</svg>
 {%- endmacro -%}

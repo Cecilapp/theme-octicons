@@ -1,11 +1,10 @@
 {
   "name": "theme-octicons",
   "scripts": {
-    "build": "npm explore @primer/octicons -- npm run build",
-    "copy": "shx cp ./node_modules/@primer/octicons/build/data.json ./data/octicons.json"
+    "build": "shx cp ./node_modules/@primer/octicons/build/data.json ./data/octicons.json"
   },
   "dependencies": {
-    "@primer/octicons": "^19.17",
+    "@primer/octicons": "^19.40",
     "shx": "^0.4.0"
   }
 }

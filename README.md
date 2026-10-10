@@ -22,9 +22,13 @@ composer require cecil/theme-octicons
 {{ octicons.svg('<icon>', <16|24>, '<class>') }}
 ```
 
+- `size` is optional (default: `24`)
+- `class` is optional
+- If the icon isn't available in the requested size, the `question` icon is rendered instead (size `16`).
+
 ## Development
 
-This will build the Octicons data file and copy it to the `data` folder.
+Install dependencies, then copy the Octicons data file (from `@primer/octicons`) to the `data` folder:
 
 ```bash
 npm install
